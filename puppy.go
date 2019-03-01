@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ type JSONResult struct {
 	Message string
 }
 
-func GetPuppy() io.ReadCloser {
+func GetPuppy(queue chan []byte) {
 	resp, err := http.Get("https://dog.ceo/api/breeds/image/random")
 	if err != nil {
 		fmt.Printf("error getting puppy url: %v\n", err)
@@ -29,10 +29,16 @@ func GetPuppy() io.ReadCloser {
 	fmt.Println("Serving image", jsonBody.Message)
 
 	resp, err = http.Get(jsonBody.Message)
-
 	if err != nil {
 		fmt.Printf("error puppy image: %v\n", err)
 	}
+	defer resp.Body.Close()
 
-	return resp.Body
+	puppyBuffer, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		fmt.Printf("error reading puppy image stream: %v\n", err)
+	}
+
+	queue <- puppyBuffer
 }

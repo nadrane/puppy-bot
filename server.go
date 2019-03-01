@@ -2,24 +2,28 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	puppyResp := GetPuppy()
-	puppyBuffer, err := ioutil.ReadAll(puppyResp)
-	if err != nil {
-		fmt.Println("error with puppy buffer")
-	}
+func puppyHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("url %+v", r.URL)
+	queue := make(chan []byte)
+	fmt.Println("calling GetPuppy")
+	go GetPuppy(queue)
 	w.Header().Set("Content-Type", "image/jpeg")
+	puppyBuffer := <-queue
 	w.Write(puppyBuffer)
 }
 
+func faviconHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+}
+
 func main() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/favicon.icocalling", faviconHandler)
+	http.HandleFunc("/puppy", puppyHandler)
 	fmt.Printf("listening on http://localhost:%v \n", os.Getenv("PORT"))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", os.Getenv("PORT")), nil))
 }
