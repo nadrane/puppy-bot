@@ -26,7 +26,7 @@ func GetPuppy() io.ReadCloser {
 		fmt.Println("error decoding json")
 	}
 
-	fmt.Println("Serving image %v", jsonBody.Message)
+	fmt.Println("Serving image", jsonBody.Message)
 
 	resp, err = http.Get(jsonBody.Message)
 

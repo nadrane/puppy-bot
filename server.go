@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +20,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", handler)
-	fmt.Println("listening on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Printf("listening on http://localhost:%v \n", os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", os.Getenv("PORT")), nil))
 }
